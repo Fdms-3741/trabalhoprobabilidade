@@ -17,25 +17,25 @@ from utils import LoadDataset
 
 #
 # "Questão 1" - Importação e tratamento de dados
-#
+# 
 # Colunas:
-#   date_hour      datetime64[ns]
-#   device_type            object
-#   device_id               int64
-#   flow type              object
-#   bytes                 float64
-#   dtype: object
+#   Data e hora            datetime64[ns]
+#   Tipo de dispositivo            object
+#   Id do dispositivo               int64
+#   Direção do fluxo               object
+#   bps                           float64
+
 
 for method in ['add1','dropna']:
     dataset = LoadDataset() 
 
     if method == 'add1':
         # Somar 1 compensa entradas com valores zero
-        dataset['bytes'] = np.log10(dataset['bytes']+1)
+        dataset['bps'] = np.log10(dataset['bps']+1)
     elif method == 'dropna':
         dataset = dataset.replace(0,np.nan)
-        dataset.dropna(subset='bytes',inplace=True)
-        dataset['bytes'] = np.log10(dataset['bytes'])
+        dataset.dropna(subset='bps',inplace=True)
+        dataset['bps'] = np.log10(dataset['bps'])
     else:
         raise NotImplementedError 
     #
@@ -45,10 +45,10 @@ for method in ['add1','dropna']:
     #
 
     globalStats = pd.DataFrame({
-            "count":  dataset.groupby(['device_type','flow_type'])['bytes'].count(),
-            "average":  dataset.groupby(['device_type','flow_type'])['bytes'].mean(),
-            "stddev":  dataset.groupby(['device_type','flow_type'])['bytes'].var(ddof=1),
-            "variance":  dataset.groupby(['device_type','flow_type'])['bytes'].std(ddof=1)
+            "$n$":  dataset.groupby(['Tipo de dispositivo','Direção do fluxo'])['bps'].count(),
+            "Média":  dataset.groupby(['Tipo de dispositivo','Direção do fluxo'])['bps'].mean(),
+            "Desvio padrão":  dataset.groupby(['Tipo de dispositivo','Direção do fluxo'])['bps'].var(ddof=1),
+            "Variância":  dataset.groupby(['Tipo de dispositivo','Direção do fluxo'])['bps'].std(ddof=1)
     })
 
     print(globalStats)
@@ -57,19 +57,18 @@ for method in ['add1','dropna']:
     globalStats.to_latex(f'./resultados/questao2/global_stats_{method}.tex',escape=True)
 
     # Histogramas
-    fig = sns.displot(data=dataset,kind='hist',bins='sturges',x='bytes',row='device_type',col='flow_type')
+    fig = sns.displot(data=dataset,kind='hist',bins='sturges',x='bps',row='Tipo de dispositivo',col='Direção do fluxo')
     fig.set(xlim=(-0.25,8.25))
     plt.savefig(f'./resultados/questao2/histograms_{method}.png')
     print("Histograms made")
 
     # ECDFs 
-    fig = sns.displot(data=dataset,kind='ecdf',x='bytes',row='device_type',col='flow_type')
+    fig = sns.displot(data=dataset,kind='ecdf',x='bps',row='Tipo de dispositivo',col='Direção do fluxo')
     fig.set(xlim=(-0.25,8.25))
     plt.savefig(f'./resultados/questao2/ecdfs_{method}.png')
     print("ECDFs made")
 
     # Boxplots
-    sns.catplot(data=dataset,kind='box',x='device_type',hue='flow_type',y='bytes')
+    sns.catplot(data=dataset,kind='box',x='Tipo de dispositivo',hue='Direção do fluxo',y='bps')
     plt.savefig(f"./resultados/questao2/boxplots_{method}.png")
 
-plt.show()

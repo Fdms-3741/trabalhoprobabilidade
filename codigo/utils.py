@@ -12,14 +12,6 @@ def ProcessDataset(a):
     a = a.set_index(['date_hour','device_id'])
     return a 
 
-def LogarithmColumns(a,mode='add1'):
-    if mode == 'add1':
-        a['bytes_up'] = np.log10(a['bytes_up']+1)
-        a['bytes_down'] = np.log10(a['bytes_down']+1)
-    else:
-        raise NotImplementedError 
-
-
 def SaveDataset(a,name='processed_dataset.pickle'):
     a.to_pickle(name)
 
@@ -42,11 +34,16 @@ def ImportGlobalDataset():
     dataset = dataset.melt(id_vars=['date_hour','device_type','device_id'],var_name='flow_type',value_name='bytes')
     # Converts type to datetime 
     dataset['date_hour'] = pd.to_datetime(dataset['date_hour'])
+    dataset.columns = ("Data e hora", "Tipo de dispositivo", "Id do dispositivo", "Direção do fluxo", "bps")
+    dataset.replace({
+                    'bytes_up':"Upload",
+                    'bytes_down':"Download"
+    },inplace=True)
     return dataset
 
 if __name__ == '__main__':
     df = ImportGlobalDataset()
-    df.sort_values(by=['device_type','flow_type','date_hour'],inplace=True)
+    df.sort_values(by=['Tipo de dispositivo','Direção do fluxo','Data e hora'],inplace=True)
     SaveDataset(df)
     print(df)
     print(df.columns)
