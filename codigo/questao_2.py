@@ -47,14 +47,14 @@ for method in ['add1','dropna']:
     globalStats = pd.DataFrame({
             "count":  dataset.groupby(['device_type','flow_type'])['bytes'].count(),
             "average":  dataset.groupby(['device_type','flow_type'])['bytes'].mean(),
-            "std_dev":  dataset.groupby(['device_type','flow_type'])['bytes'].var(ddof=1),
+            "stddev":  dataset.groupby(['device_type','flow_type'])['bytes'].var(ddof=1),
             "variance":  dataset.groupby(['device_type','flow_type'])['bytes'].std(ddof=1)
     })
 
     print(globalStats)
 
     # Salva resultados como tabela no latex
-    globalStats.to_latex(f'./resultados/questao2/global_stats_{method}.tex')
+    globalStats.to_latex(f'./resultados/questao2/global_stats_{method}.tex',escape=True)
 
     # Histogramas
     fig = sns.displot(data=dataset,kind='hist',bins='sturges',x='bytes',row='device_type',col='flow_type')

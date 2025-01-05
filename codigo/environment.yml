@@ -1,0 +1,11 @@
+name: probest
+channels:
+  - defaults
+dependencies:
+  - python=3.12.3
+  - numpy
+  - pandas
+  - scipy
+  - matplotlib
+  - seaborn
+  - jinja2
