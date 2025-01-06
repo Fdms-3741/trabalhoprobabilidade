@@ -63,7 +63,7 @@ A primeira alternativa para lidar com o problema da existencia de zeros nos dado
 	b'_n = \log_{10}(b_n+1)\;\forall\;n
 \end{equation*}
 
-A segunda alternativa consiste em tirar os valores 0 das entradas antes de fazer o logaritmo. Para manter consistência entre datasets e preservar a região do conjunto de dados, adiciona-se 1 a cada entrada do logaritmo antes de qualquer
+A segunda alternativa consiste em tirar os valores 0 das entradas antes de fazer o logaritmo. Para manter consistência entre datasets e preservar a região do conjunto de dados, a mesma função de conversão é utilizada em ambos os casos.
 
 A escolha entre os datasets vai depender da interpretação desejada dos resultados obtidos e dos objetivos com a análise, já que ambos os datasets fornecem resultados diferentes. Ao longo desse trabalho, é possível ver situações onde um dataset é mais apropriado para explicar um fenômeno do que outro, e essas situações serão elencadas ao longo desse trabalho.
 
@@ -98,7 +98,7 @@ Vemos os datasets sendo representados integralmente pelos histogramas da figura~
 	\label{fig:questao2-histogramas-sem-zeros}
 \end{figure}
 
-Com a remoção dos valores nulos, é possível observar com mais detalhes o formato do histogramas na figura~\ref{fig:questao2-histogramas-sem-zeros}. Nessa figura, podemos distinguir a presença de uma distribuição multimodal nos histogramas de download comparado aos histogramas de upload. Isso pode ser explicado devido a presença de variáveis independentes que afetam o padrão de transmissão de dados, mas sem mais informações sobre os dispositivos não é possível definir a causa desse comportamento. As distribuições de upload não parecem possuir esse comportamento multimodal, e a distribuição da Smart TV possui um espalhamento maior do que a distribuição do Chromecast.
+Com a remoção dos valores nulos, é possível observar com mais detalhes o formato do histogramas na figura~\ref{fig:questao2-histogramas-sem-zeros}. Nessa figura, podemos distinguir a presença de uma distribuição multimodal nos histogramas de download comparado aos histogramas de upload. Isso pode ser explicado devido a presença de variáveis independentes que afetam o padrão de transmissão de dados, mas sem mais informações sobre os dispositivos não é possível definir a causa desse comportamento. As distribuições de upload não parecem possuir esse comportamento multimodal, e a distribuição da Smart TV possui um espalhamento maior do que a distribuição do :/Chromecast.
 
 
 
@@ -219,7 +219,7 @@ Por último, com base nos resultados da tabela~\ref{tab:questao3-estatisticas-ho
 
 \begin{table}[h]
 	\centering
-	\include{./resultados/questao3/horarios_pico}
+	\include{./resultados/questao3czero/horarios_pico}
 	\caption{Horários de pico para cada dataset}
 	\label{tab:questao3-horarios-picos}
 \end{table}
@@ -311,29 +311,89 @@ Portanto, as principais conclusões dessa seção são:
 
 \section{Análise de correlação}
 
-Nessa seção, será feita uma análise de correlação entre as taxas de download e upload dos dispositivos. Nesse caso, a estrututra do dataset é diferente da utilizada até então: Ao invés da coluna categórica ``Direção do fluxo'' para dizer se o valor é de upload ou de download, há duas colunas: Uma para
+Nessa seção, será feita uma análise de correlação entre as taxas de download e upload dos dispositivos. Nesse caso, a estrututra do dataset é diferente da utilizada até então: Ao invés da coluna categórica ``Direção do fluxo'' para dizer se o valor é de upload ou de download, há duas colunas: Uma para o valor da taxa de upload e outro para a taxa de download.
+
+Nesse caso, é desejado avaliar a correlação incluindo todos os dados. Se a hipótese de que alguns dispositivos possuem taxa nula porque estão desligados, essas taxas devem ser nulas tanto para upload quanto para download, o que não vai prejudicar o resultado da correlação tanto quanto uma variável livre e outra nula fariam. Porém, múltiplas entradas do vetor $(0,0)$ podem introduzir um viés que incrementa artificialmente o resultado de correlação de pearson. Portanto, para avaliar a estatística, ambas as alternativas (com e sem os zeros) serão avaliadas.
+
+Nessa seção, decidiu-se por avaliar a correlação entre taxas de download e upload que ocorrem na mesma hora, já que não é possível associar taxas de upload e download que aconteceram em horários diferentes. Assim, já que o upload e o download do Chromecast acontecem em horários distintos, decidiu-se por avaliar a correlação em \textbf{três} datasets diferentes:
+\begin{itemize}
+	\item Chromecast as 23hrs
+	\item Chromecast as 22hrs
+	\item Smart TV as 20hrs
+\end{itemize}
 
 \subsection{Metodologia}
 
-Para essa
+Para remover os zeros do dataset, o dataset é filtrado de modo que, se pelo menos uma entrada de bps (download ou upload) é zero, toda a entrada é removida. Isso vai remover tanto os pontos $(0,0)$ repetidos como qualquer ponto $(0,x)$ e $(0,y)$.
+
+A correlação de pearson é calculada utilizando a biblioteca \texttt{scipy}, que retorna a estatística e o valor-p associado.
 
 \subsection{Resultados}
 
-\begin{table}
+Os resultados das estatísticas podem ser vistos nas tabelas~\ref{tab:questao5-resultados-correlacao} e~\ref{tab:questao5-resultados-correlacao-semzero}, para resultados com valores nulos e sem valores nulos respectivamente. Já o scatter plot pode ser visto na figura~\ref{fig:questao5-scatter-plots}.
+
+Podemos ver através das tabelas~\ref{tab:questao5-resultados-correlacao} e~\ref{tab:questao5-resultados-correlacao-semzero} que a presença ou não das entradas nulas pouco influenciou no resultado da correlação, que indica uma correlação forte ($\rho>0.7$) em todos os casos, com um valor-p menor que 7 casas decimais. O resultado positivo de todos os casos indica que o valor de upload tende a crescer quando o valor de download cresce, e vice-versa. Porém, esse resultado não nos dá mais informações a respeito do tipo de relação e nem a taxa de crescimento de uma variável em função da outra.
+
+Com base no gráfico da figura~\ref{fig:questao5-scatter-plots}, podemos observar que os dados apresentam uma correlação positiva com o tipo de correlação difícil de distinguir devido a quantidade excessiva de pontos. Pode-se dizer que o segundo e o terceiro gráfico aparentam possuir correlações lineares, mas o primeiro apresenta uma tendência de seguir um ``S'', que claramente é não linear. Vemos que o impacto das entradas nulas é observado devido aos dois conjunto de pontos que se apresentam em $(x,0)$ e $(0,y)$, muito mais predominantes no caso do Smart TV do que no caso do Chromecast.
+
+\begin{table}[h]
 	\centering
-	\include{./resultados/questao5/corr_results}
-	\caption{Resultados da correlação de pearson}
+	\include{./resultados/questao5czero/corr_results}
+	\caption{Resultados da correlação de pearson sem exclusão de zeros}
 	\label{tab:questao5-resultados-correlacao}
 \end{table}
 
-
-\begin{figure}
+\begin{table}[h]
 	\centering
-	\caption{Gráficos de correlação entre os datasets}
-	\includegraphics[width=\textwidth]{./resultados/questao5/correlation_plots.png}
+	\include{./resultados/questao5/corr_results}
+	\caption{Resultados da correlação de pearson com exclusão de zeros}
+	\label{tab:questao5-resultados-correlacao-semzero}
+\end{table}
+
+\begin{figure}[h]
+	\centering
+	\caption{Gráficos de correlação entre os datasets sem exclusão de zeros}
+	\includegraphics[width=\textwidth]{./resultados/questao5czero/correlation_plots.png}
 	\label{fig:questao5-scatter-plots}
 \end{figure}
 
+Com isso, pudemos concluir nessa seção que
+\begin{itemize}
+	\item Três datasets com horários de pico distintos devem ser analizados para fazer uma correlação justa (upload e download no mesmo horário).
+	\item As taxas de upload e download possuem uma forte correlação positiva entre si durante horários de pico, independente se o dataset contém as entradas nulas ou não.
+	\item Os gráficos scatter sugerem uma relação linear entre as entradas do Chromecast, mas uma relação não-linear (formato de ``s'') no caso da Smart TV.
+\end{itemize}
+
+\section{G-Test}
+
+O G-Test é um teste de hipótese que avalia se dois datasets, com lista de frequências de observação, possuem distribuições similares. Nessa seção, queremos observar se as distribuições para as taxas de upload e download são similares entre um mesmo dispositivo nos horários de pico. Para isso, serão comparados os mesmos datasets da seção anterior.
+
+\subsection{metodologia}
+
+Para o cálculo do G-Test, é necessário criar duas listas de frequências, uma para cada distribuição, e compará-las no teste. Essa lista de frequências é equivalente ao resultado numérico de um histograma, onde cada bin representa o intervalo e a contagem é a frequência de observações desse intervalo. Com isso, utilizou-se funções da biblioteca \texttt{numpy} para encontrar os intervalos dos bins apropriados segundo a regra de sturges para as taxas de download. Após isso, os mesmos intervalos dos bins são utilizados para fazer a contagem da taxa de upload e da taxa de download, e ambas as contagens são passadas para a função que calcula a estatística.
+
+\subsection{resultados}
+
+Os resultados da estatística e do valor-p podem ser vistos na tabela~\ref{tab:g-test}.
+
+\begin{table}[h]
+	\centering
+	\include{./resultados/questao6/gtest_result_czero}
+	\caption{Resultados G-Test}
+	\label{tab:g-test}
+\end{table}
+
+Como podemos ver, os resultados são bem diferentes entre si, e o valor-p é menor que 7 casas decimais. Portanto, todas as hipóteses que as distribuições são iguais foram rejeitadas. Esse resultado era esperado dado as observações das seções anteriores: Os histogramas entre as taxas de download e upload possuem formatos diferentes, onde uma é multimodal e a outra não.
+
+Com isso, nessa seção podemos simplesmente concluir que todos os testes de hipótese foram rejeitados, ou seja, nenhuma distribuição de upload é similar a de download.
+
+\section{Considerações finais}
+
+Nesse trabalho, foram observados os dados de taxa de upload e download de dois tipos de dispositivos: Smart TVs e Chromecasts, que foram coletados por uma ISP de médio porte.
+
+Através desses dados, foi possível observar diferenças no comportamento de upload e de download dos dispositivos, que resultam em distribuições diferentes; observar padrões de uso desses dispositivos que variam em função da hora do dia, observar correlações entre taxas e comparar o comportamento desse dataset com o comportamento de distribuições teóricas.
+
+A análise sobre a exclusão ou não dos valores nulos trouxe uma discussão a respeito da interpretação dos dados e dos diferentes casos onde essa informação é relevante ou não é relevante. Algumas comparações foram feitas entre os datasets com e sem a presença de valores nulos e foi possível observar o impacto dessas amostras nos resultados. A presença ou não dos zeros só será definida ao definir um objetivo específico para a análise.
 
 \end{document}
 

@@ -16,11 +16,13 @@ from utils import LoadDataset
 dataset = LoadDataset()
 
 # Mude para alternar entre resultados
-dropZeroValues = True 
+dropZeroValues = False  
 if len(sys.argv) == 2:
     dropZeroValues = bool(sys.argv[1])
 
 resultsDir = f"./resultados/{'questao5' if dropZeroValues else 'questao5czero'}/"
+
+print(resultsDir)
 
 # Importando e convertendo dataset 
 dataset = LoadDataset()
