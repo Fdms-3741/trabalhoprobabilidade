@@ -12,6 +12,11 @@ from utils import LoadDataset
 
 dataset = LoadDataset()
 
+dropZeroValues = False
+resultsDir = f"./resultados/questao3{'' if dropZeroValues else 'czero'}/"
+if dropZeroValues:
+    dataset.replace(0.0,np.nan,inplace=True)
+    dataset.dropna(inplace=True)
 dataset['bps'] = np.log10(dataset['bps']+1)
 
 dataset['Hora'] = dataset['Data e hora'].dt.hour
@@ -30,15 +35,15 @@ res = res.reset_index().pivot(index='Hora',columns=['Tipo de dispositivo','Dire�
 res.columns = res.columns.reorder_levels([1,2,0])
 res = res.T.sort_index().T
 print(res)
-res.to_latex("./resultados/questao3/estatisticas_gerais.tex")
+res.to_latex(resultsDir+"estatisticas_gerais.tex")
 maxHours = res.loc[:,(slice(None),slice(None),'Média')].idxmax()
 print(maxHours)
-maxHours.to_latex("./resultados/questao3/horarios_pico.tex")
+maxHours.to_latex(resultsDir+"horarios_pico.tex")
 
 # Boxplots
 plt.clf()
 sns.catplot(data=dataset,kind='box',x='Hora',y='bps',col='Tipo de dispositivo',row='Direção do fluxo')
-plt.savefig('./resultados/questao3/boxplots.png')
+plt.savefig(resultsDir+'boxplots.png')
 
 # Gráficos das estatísticas
 res.columns.names = ('Tipo de dispositivo','Direção do fluxo','Estatística')
@@ -47,5 +52,5 @@ statsHour = res.melt(ignore_index=False,value_name='bps').reset_index()
 for stat in np.unique(statsHour['Estatística']):
     plt.clf()
     sns.relplot(data=statsHour[statsHour['Estatística'] == stat],x='Hora',y='bps',row='Tipo de dispositivo',col='Direção do fluxo')
-    plt.savefig(f'./resultados/questao3/variacao_{stat}.png')
+    plt.savefig(resultsDir+f'variacao_{stat}.png')
 

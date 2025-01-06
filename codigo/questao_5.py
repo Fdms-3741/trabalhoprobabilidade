@@ -50,9 +50,9 @@ print(corrRes)
 corrRes.to_latex(resultsDir+"corr_results.tex")
 
 # Plot de correlação
-fig,ax = plt.subplots(1,3)
+fig,ax = plt.subplots(1,3,figsize=(14,7))
 for idx, (name,data) in enumerate(relData.groupby(['Hora','Tipo de dispositivo'])):
     ax[idx].scatter(data['Upload'],data['Download'])
-    ax[idx].set_title(f"Correlation for {name[1]} @ {name[0]}hrs")
+    ax[idx].set_title(f"{name[1]} @ {name[0]}hrs")
 plt.savefig(resultsDir+'correlation_plots.png')
 

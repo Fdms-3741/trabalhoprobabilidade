@@ -115,7 +115,6 @@ for idx, (names, data) in enumerate(peakData.groupby(['Tipo de dispositivo','Dir
     pplot.probplot(ax=ax.ravel()[idx],line='45')
     ax.ravel()[idx].set_title(f"Tipo de dispositivo = {names[0]} | Direção do fluxo = {names[1]}")
 
-fig.suptitle("Probability plots para a distr. normal")
 plt.savefig(resultsDir+'probability_plots_normal.png')
 
 fig, ax = plt.subplots(2,2,figsize=(16,9))
@@ -128,10 +127,9 @@ for idx, (names, data) in enumerate(peakData.groupby(['Tipo de dispositivo','Dir
         loc=0,
         scale=1/gammaFit.loc[names,r'$\lambda$']
     )
-    pplot.probplot(ax=ax.ravel()[idx],line='45')
     ax.ravel()[idx].set_title(f"Tipo de dispositivo = {names[0]} | Direção do fluxo = {names[1]}")
+    pplot.probplot(ax=ax.ravel()[idx],line='45')
 
-fig.suptitle("Probability plots para a distr. gamma")
 plt.savefig(resultsDir+'probability_plots_gamma.png')
 
 # Passo 6 - QQPlot
@@ -150,10 +148,9 @@ for idx, (flowName, data) in enumerate(peakData.groupby('Direção do fluxo')):
     if deviceData[smallDf][1].shape[0] > deviceData[bigDf][1].shape[0]:
         smallDf, bigDf = bigDf, smallDf 
 
-    sm.qqplot_2samples(deviceData[smallDf][1]['bps'],deviceData[bigDf][1]['bps'],line='45',ax=ax[idx])
-    ax[idx].set_title(f'Direção do fluxo = {flowType}')
+    ax[idx].set_title(f'Direção do fluxo = {flowName}')
     ax[idx].set_xlabel(f'{deviceData[smallDf][0]}')
     ax[idx].set_ylabel(f'{deviceData[bigDf][0]}')
+    sm.qqplot_2samples(deviceData[smallDf][1]['bps'],deviceData[bigDf][1]['bps'],line='45',ax=ax[idx])
 
-fig.suptitle("QQPlots")
 plt.savefig(resultsDir+"qqplots.png")
